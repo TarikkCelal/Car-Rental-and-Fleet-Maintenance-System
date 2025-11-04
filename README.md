@@ -1,105 +1,84 @@
-AIN-3005: Car Rental & Fleet Maintenance System
+# Car Rental & Fleet Maintenance System (CRFMS)
 
-This project is a solution for the 1st Homework Assignment for the "Advanced Python Programming" (AIN-3005) course at Bahçeşehir University.
+A **complete, object-oriented system** for managing car rentals, fleet maintenance, and billing — built with **Clean Architecture** and **SOLID principles**.
 
-It is a complete, object-oriented system for managing car rentals, fleet maintenance, and billing, built using clean architecture principles.
+---
 
-Project Description
+## Overview
 
-The system (CRFMS) is designed to support:
+**CRFMS** is designed to support the full lifecycle of a car rental operation, including:
 
-Customers: Creating and managing reservations.
+- **Customers:** Create and manage reservations.  
+- **Branch Agents:** Handle vehicle pickups and returns, record odometer/fuel data, and assess charges.  
+- **Fleet Managers:** Enforce maintenance holds based on vehicle odometer or time thresholds.
 
-Branch Agents: Handling vehicle pickups and returns, recording odometer/fuel, and assessing charges.
+It accurately calculates:
+- Rental charges  
+- Late fees  
+- Mileage overage  
+- Fuel refill penalties  
 
-Fleet Managers: Enforcing maintenance holds based on vehicle odometer or time.
+The system is **fully testable** thanks to an injectable `Clock`, allowing time-based logic to be verified easily.
 
-It correctly calculates rental charges, late fees, mileage overage, and fuel refill penalties, all while being fully testable thanks to an injectable Clock.
+---
 
-Core Design & Architecture
+## Core Design & Architecture
 
-This project was built with a focus on SOLID principles and a Clean Architecture (Ports and Adapters) approach.
+This project follows **Clean Architecture (Ports & Adapters)** and **SOLID** design principles.
 
-Domain (crfms/domain): Contains all core business logic, entities (like Vehicle, Reservation), and Value Objects (like Money, Kilometers). It has no dependencies on other layers.
+### Layers
 
-Services (crfms/services): The orchestration layer that coordinates domain entities to perform use cases (e.g., RentalService, AccountingService).
+#### Domain (`crfms/domain`)
+Contains the **core business logic**, **entities**, and **value objects**:
+- Entities: `Vehicle`, `Reservation`, etc.
+- Value Objects: `Money`, `Kilometers`, etc.
+- No dependencies on other layers.
 
-Adapters (crfms/adapters): Concrete implementations of the interfaces defined in the domain.
+#### Services (`crfms/services`)
+Implements the **application layer**, orchestrating domain entities to perform use cases:
+- `RentalService`
+- `AccountingService`
+- `MaintenanceService`
+- `ReservationService`
 
-FakePaymentAdapter simulates payment success/failure.
+#### Adapters (`crfms/adapters`)
+Concrete implementations of the interfaces (ports) defined in the domain:
+- `FakePaymentAdapter` → simulates payment success/failure.  
+- `InMemoryNotificationAdapter` → records sent notifications (great for testing).
 
-InMemoryNotificationAdapter records sent notifications for testing.
+### Design Patterns
 
-Strategy Pattern: The PricingPolicy uses the Strategy Pattern to allow new pricing rules (like BaseDailyRateRule) to be "plugged in" without changing core code.
+- **Strategy Pattern:**  
+  `PricingPolicy` uses strategies like `BaseDailyRateRule`, enabling new pricing rules without touching existing code.
 
-UML: A complete UML class diagram is available in design.puml.
+- **Dependency Inversion:**  
+  Adapters implement interfaces defined by the domain layer.
 
-Project Structure
+---
 
+## Project Structure
+
+```bash
 car_rental_system/
-├── crfms/              # The main Python package
-│   ├── __init__.py
-│   ├── adapters/         # Implementations of ports
-│   │   ├── __init__.py
+├── crfms/
+│   ├── adapters/           # Implementations of ports
 │   │   ├── notifications.py
 │   │   └── payments.py
-│   ├── domain/           # Core entities, value objects, ports
-│   │   ├── __init__.py
+│   ├── domain/             # Core business logic and entities
 │   │   ├── fleet.py
 │   │   ├── pricing.py
 │   │   ├── rental.py
 │   │   ├── users.py
 │   │   └── values.py
-│   └── services/         # Use-case orchestration
-│       ├── __init__.py
+│   └── services/           # Use-case orchestration layer
 │       ├── accounting.py
 │       ├── database.py
 │       ├── inventory.py
 │       ├── maintenance.py
 │       ├── rental.py
 │       └── reservation.py
-├── tests/              # All pytest tests
-│   ├── __init__.py
+├── tests/
 │   └── test_rental_workflow.py
-├── .gitignore          # Files for Git to ignore
-├── design.puml         # The UML class diagram
-└── README.md           # This file
-└── requirements.txt    # Python dependencies
-
-
-
-How to Run This Project
-
-Prerequisites:
-
-Python 3.10+
-
-git
-
-Clone & Install:
-
-# Clone the repository (or just use your local folder)
-# git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
-# cd car_rental_system
-
-# Create a virtual environment
-python -m venv venv
-
-# Activate it (Windows)
-.\venv\Scripts\activate
-# (macOS/Linux)
-# source venv/bin/activate
-
-# Install the required packages
-pip install -r requirements.txt
-
-
-
-Run the Tests:
-To verify all business logic is working correctly, run pytest from the main (car_rental_system) directory:
-
-pytest
-
-
-
-You should see an output showing 2 passed.
+├── design.puml             # UML class diagram
+├── requirements.txt        # Dependencies
+└── README.md               # This file
